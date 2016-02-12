@@ -41,11 +41,6 @@
 // ini_set('display_errors', 1);
 
 date_default_timezone_set('Europe/Brussels');
-define("BLOG_NAME",                 "brainmess");
-define("CONSUMER_KEY",              "xxxxxx");
-define("CONSUMER_SECRET",           "xxxxxx");
-define("OAUTH_TOKEN",               "xxxxxx");
-define("OAUTH_SECRET",              "xxxxxx");
 define('MIN_PAD',                   10);
 if (posix_isatty(STDOUT)) {
     define('TERM_RESET',            "\033[0m");
@@ -89,24 +84,26 @@ class TumblrPoster {
     private $counter_processed;
     private $counter_downloaded;
 
+    private $blog_name;
+    private $consumer_key;
+    private $consumer_secret;
+    private $oauth_secret;
+    private $oauth_token;
+
     function __construct($arguments, $arguments_count, $options) {
         // test for usage and print help
         if (array_key_exists("help", $options) || array_key_exists("h", $options)) {
-            fwrite(STDOUT, TERM_UNDERLINE . "Usage:" . TERM_RESET . " php $arguments[0]" . PHP_EOL . PHP_EOL);
-
-            fwrite(STDOUT, "\t-q (or --queued)\t" . TERM_COLOR_BLUE . "*optional*" . TERM_RESET . " a flag to tell the script to put the post in queue (default is 'published')" . PHP_EOL);
-            fwrite(STDOUT, "\t-h (or --help)\t\tprints this help" . PHP_EOL . PHP_EOL);
+            fwrite(STDOUT, TERM_UNDERLINE . "Usage:" . TERM_RESET . " $arguments[0]" . PHP_EOL . PHP_EOL);
+            fwrite(STDOUT, "  -q (or --queued)           " . TERM_COLOR_BLUE . "*optional*" . TERM_RESET . " a flag to tell the script to put the post in queue (default is 'published')" . PHP_EOL);
+            fwrite(STDOUT, "  -h (or --help)             prints this help" . PHP_EOL . PHP_EOL);
 
             fwrite(STDOUT, TERM_UNDERLINE . "Examples:" . TERM_RESET . PHP_EOL . PHP_EOL);
-
-            fwrite(STDOUT, "\tphp $arguments[0]\t\t(post every photo available)" . PHP_EOL);
-            fwrite(STDOUT, "\tphp $arguments[0] --queued\t(post every photo in the blog queue)" . PHP_EOL . PHP_EOL);
+            fwrite(STDOUT, "  $arguments[0]           (post every photo available)" . PHP_EOL);
+            fwrite(STDOUT, "  $arguments[0] --queued  (post every photo in the blog queue)" . PHP_EOL . PHP_EOL);
 
             fwrite(STDOUT, TERM_UNDERLINE . "Notes:" . TERM_RESET . PHP_EOL . PHP_EOL);
-
-            fwrite(STDOUT, "\t- short and long options can be used interchangeably (if available)" . PHP_EOL);
-            fwrite(STDOUT, "\t- do not specify an option more than once (unexpected behavior might occur)" . PHP_EOL);
-            fwrite(STDOUT, "\t- photos are taken from a 'photos' directory where the script resides" . PHP_EOL);
+            fwrite(STDOUT, " - photos are taken from the 'photos' directory where the script resides" . PHP_EOL);
+            fwrite(STDOUT, " - configuration resides in the config.json file" . PHP_EOL);
 
             die(0);
         }
@@ -122,6 +119,26 @@ class TumblrPoster {
             die(1);
         }
 
+        // test presence of config.json and validity
+        $raw_configuration = @file_get_contents("config.json");
+        $configuration = json_decode($raw_configuration, true);
+        $this->blog_name = $configuration['BLOG_NAME'];
+        $this->consumer_key = $configuration['CONSUMER_KEY'];
+        $this->consumer_secret = $configuration['CONSUMER_SECRET'];
+        $this->oauth_secret = $configuration['OAUTH_SECRET'];
+        $this->oauth_token = $configuration['OAUTH_TOKEN'];
+        if (is_null($this->blog_name) || empty($this->blog_name) 
+            || is_null($this->consumer_key) || empty($this->consumer_key) || strcmp($this->consumer_key, "REPLACE_ME") == 0 
+            || is_null($this->consumer_secret) || empty($this->consumer_secret) || strcmp($this->consumer_secret, "REPLACE_ME") == 0 
+            || is_null($this->oauth_secret) || empty($this->oauth_secret) || strcmp($this->oauth_secret, "REPLACE_ME") == 0 
+            || is_null($this->oauth_token) || empty($this->oauth_token) || strcmp($this->oauth_token, "REPLACE_ME") == 0) {
+            fwrite(STDERR, TERM_UNDERLINE . TERM_COLOR_RED . "ERROR:" . TERM_RESET . " Invalid configuration!" . PHP_EOL);
+            fwrite(STDERR, "\tsee php $arguments[0] -h (or --help) for usage" . PHP_EOL);
+            fwrite(STDERR, "\tThe configuration file 'config.json' doesn't exist or keys are missing/invalid" . PHP_EOL);
+
+            die(1);
+        }
+
 
         // setup archive directory
         $this->archive_directory = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'archive';
@@ -129,7 +146,7 @@ class TumblrPoster {
             mkdir($this->archive_directory); // create archive directory
 
             $date_string = $this->date_now_string();
-            fwrite(STDOUT, "[$date_string] " . BLOG_NAME . " > created archive directory!" . PHP_EOL);
+            fwrite(STDOUT, "[$date_string] > created archive directory!" . PHP_EOL);
         }
 
         // queued 
@@ -150,12 +167,12 @@ class TumblrPoster {
      */
     public function process() {
         $date_string = $this->date_now_string();
-        fwrite(STDOUT, "[$date_string] Started processing '" . BLOG_NAME . "'" . PHP_EOL);
+        fwrite(STDOUT, "[$date_string] Started processing '$this->blog_name'" . PHP_EOL);
 
         $this->loop_through_photos();
 
         $date_string = $this->date_now_string();
-        fwrite(STDOUT, "[$date_string] Done processing '" . BLOG_NAME . "': $this->counter_uploaded/$this->counter_processed photo(s) uploaded." . PHP_EOL);
+        fwrite(STDOUT, "[$date_string] Done processing '$this->blog_name': $this->counter_uploaded/$this->counter_processed photo(s) uploaded." . PHP_EOL);
 
         die(0);
     }
@@ -194,13 +211,13 @@ class TumblrPoster {
 
         fwrite(STDOUT, TERM_SAVE_POSITION);
         $date_string = $this->date_now_string();
-        $head = "[$date_string] " . BLOG_NAME . " > $photo_name";
+        $head = "[$date_string] $this->blog_name > $photo_name";
         $tail = "uploading";
         $pad = $this->pad_string($head, $tail);
         fwrite(STDOUT, TERM_RESTORE_POSITION . $head . $pad . $tail);
 
         // setup request
-        $post_url = "http://api.tumblr.com/v2/blog/" . BLOG_NAME . ".tumblr.com/post";
+        $post_url = "http://api.tumblr.com/v2/blog/$this->blog_name.tumblr.com/post";
         $this->oauth_gen("POST", $post_url, $params);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_USERAGENT, "TumblrPoster");
@@ -251,7 +268,7 @@ class TumblrPoster {
      * @return string
      */
     private function date_now_string() {
-        return date("Y-m-d H:i:s");
+        return date("H:i:s");
     }
 
     /** pad_string
@@ -277,11 +294,11 @@ class TumblrPoster {
      * @since 0.1
      */
     private function oauth_gen($method, $url, $iparams) {
-        $iparams['oauth_consumer_key'] = CONSUMER_KEY;
+        $iparams['oauth_consumer_key'] = $this->consumer_key;
         $iparams['oauth_nonce'] = strval(time());
         $iparams['oauth_signature_method'] = 'HMAC-SHA1';
         $iparams['oauth_timestamp'] = strval(time());
-        $iparams['oauth_token'] = OAUTH_TOKEN;
+        $iparams['oauth_token'] = $this->oauth_token;
         $iparams['oauth_version'] = '1.0';
         $iparams['oauth_signature'] = $this->oauth_sig($method, $url, $iparams); 
         $oauth_header = array();
@@ -324,7 +341,7 @@ class TumblrPoster {
         $parts []= rawurlencode(implode("&", $iparams));
         $sig = implode("&", $parts);
 
-        return base64_encode(hash_hmac('sha1', $sig, CONSUMER_SECRET."&". OAUTH_SECRET, true));
+        return base64_encode(hash_hmac('sha1', $sig, $this->consumer_secret."&". $this->oauth_secret, true));
     }
 }
 
