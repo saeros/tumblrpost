@@ -102,8 +102,8 @@ class TumblrPoster {
             fwrite(STDOUT, "  $arguments[0] --queued  (post every photo in the blog queue)" . PHP_EOL . PHP_EOL);
 
             fwrite(STDOUT, TERM_UNDERLINE . "Notes:" . TERM_RESET . PHP_EOL . PHP_EOL);
-            fwrite(STDOUT, " - photos are taken from the 'photos' directory where the script resides" . PHP_EOL);
-            fwrite(STDOUT, " - configuration resides in the config.json file" . PHP_EOL);
+            fwrite(STDOUT, "  - photos are taken from the 'photos' directory where the script resides" . PHP_EOL);
+            fwrite(STDOUT, "  - configuration resides in the config.json file" . PHP_EOL);
 
             die(0);
         }
@@ -113,8 +113,8 @@ class TumblrPoster {
         $this->photos_directory = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'photos';
         if (!is_dir($this->photos_directory)) {
             fwrite(STDERR, TERM_UNDERLINE . TERM_COLOR_RED . "ERROR:" . TERM_RESET . " Bad usage!" . PHP_EOL);
-            fwrite(STDERR, "\tsee php $arguments[0] -h (or --help) for usage" . PHP_EOL);
-            fwrite(STDERR, "\t'photos' directory doesn't exist!" . PHP_EOL);
+            fwrite(STDERR, "  see php $arguments[0] -h (or --help) for usage" . PHP_EOL);
+            fwrite(STDERR, "  'photos' directory doesn't exist!" . PHP_EOL);
 
             die(1);
         }
@@ -133,8 +133,8 @@ class TumblrPoster {
             || is_null($this->oauth_secret) || empty($this->oauth_secret) || strcmp($this->oauth_secret, "REPLACE_ME") == 0 
             || is_null($this->oauth_token) || empty($this->oauth_token) || strcmp($this->oauth_token, "REPLACE_ME") == 0) {
             fwrite(STDERR, TERM_UNDERLINE . TERM_COLOR_RED . "ERROR:" . TERM_RESET . " Invalid configuration!" . PHP_EOL);
-            fwrite(STDERR, "\tsee php $arguments[0] -h (or --help) for usage" . PHP_EOL);
-            fwrite(STDERR, "\tThe configuration file 'config.json' doesn't exist or keys are missing/invalid" . PHP_EOL);
+            fwrite(STDERR, "  see php $arguments[0] -h (or --help) for usage" . PHP_EOL);
+            fwrite(STDERR, "  The configuration file 'config.json' doesn't exist or keys are missing/invalid" . PHP_EOL);
 
             die(1);
         }

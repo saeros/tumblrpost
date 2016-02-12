@@ -1,4 +1,4 @@
-[![GitHub license](https://img.shields.io/github/license/saeros/tumblrpost.svg)](https://github.com/saeros/tumblrpost/blob/master/LICENSE) [![GitHub tag](https://img.shields.io/github/tag/saeros/tumblrpost.svg)](https://github.com/saeros/tumblrpost/releases) [![Twitter Follow](https://img.shields.io/twitter/follow/saeros01.svg?style=social)](https://twitter.com/saeros01)
+[![GitHub license](https://img.shields.io/github/license/saeros/tumblrpost.svg)](https://github.com/saeros/tumblrpost/blob/master/LICENSE) [![GitHub tag](https://img.shields.io/github/tag/saeros/tumblrpost.svg)](https://github.com/saeros/tumblrpost/releases/latest) [![Twitter Follow](https://img.shields.io/twitter/follow/saeros01.svg?style=social)](https://twitter.com/saeros01)
 
 
 # TumblrPoster
@@ -21,6 +21,7 @@ Then run:
 	./tumblrpost.php
 
 ### Advanced
+
 Several options are available, for detailed help and usage examples run the following command:
 
 	./tumblrpost.php -h (or --help)
@@ -39,8 +40,8 @@ Output:
 	
 	Notes:
 	
-	 - photos are taken from the 'photos' directory where the script resides
-	 - configuration resides in the config.json file
+	  - photos are taken from the 'photos' directory where the script resides
+	  - configuration resides in the config.json file
 
 
 ## Configuration
