@@ -1,4 +1,4 @@
-[![GitHub license](https://img.shields.io/github/license/saeros/tumblrpost.svg)](https://github.com/saeros/tumblrpost/blob/master/LICENSE) [![GitHub tag](https://img.shields.io/github/tag/saeros/tumblrpost.svg)](https://github.com/saeros/tumblrpost/releases/latest) [![Twitter Follow](https://img.shields.io/twitter/follow/saeros01.svg?style=social)](https://twitter.com/saeros01)
+[![GitHub license](https://img.shields.io/github/license/saeros/tumblrpost.svg)](https://github.com/saeros/tumblrpost/blob/master/LICENSE) [![GitHub tag](https://img.shields.io/github/tag/saeros/tumblrpost.svg)](https://github.com/saeros/tumblrpost/releases/latest) [![Twitter Follow](https://img.shields.io/twitter/follow/yonicsurny.svg?style=social)](https://twitter.com/yonicsurny)
 
 
 # TumblrPoster
