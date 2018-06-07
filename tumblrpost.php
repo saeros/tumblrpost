@@ -187,7 +187,7 @@ class TumblrPoster {
             while (false !== ($entry = readdir($handle))) {
                 if ($entry != "." && $entry != "..") {
                     $photo_path = $this->photos_directory . DIRECTORY_SEPARATOR . $entry;
-                    if ($image = getimagesize($photo_path) ? true : false) {
+                    if ($image = @getimagesize($photo_path) ? true : false) {
                         $this->upload_photo($photo_path, $entry);
                         $this->counter_processed++;
                     }
